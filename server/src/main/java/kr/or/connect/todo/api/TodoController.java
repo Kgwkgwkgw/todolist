@@ -1,6 +1,8 @@
 package kr.or.connect.todo.api;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -65,6 +67,13 @@ public class TodoController {
 	@ResponseStatus(HttpStatus.NO_CONTENT) 
 	void remove(@PathVariable Integer id){
 		todoService.removeById(id);
+	}
+	
+	@DeleteMapping
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	void removeList(@RequestBody List<Map<String,Integer>> idList) {
+		log.info("list {}", idList);
+		todoService.removeByList(idList);
 	}
 	
 	@PutMapping("/{id}/completion")

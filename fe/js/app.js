@@ -1,8 +1,8 @@
 (function (window, $) {
 	$(function(){
 		'use strict';
-
-		var regCheckWhitespace = /.*\S+.*/;
+		// 공백으로만 이루어져있지는 않은지 검사하는 정규식
+		var regCheckNoWhitespace = /.*\S+.*/;
 		var COMPLETED = 1;
 		var UNCOMPLETED = 0;
 		var COMPLETION_MODE = "COMPLETION";
@@ -18,8 +18,9 @@
 			// enter key pressed
 			if(e.which == 13) {
 				var entered = $(this).val();
-				console.log(regCheckWhitespace.test(entered));
-				addTodo($(this).val());
+				if(regCheckNoWhitespace.test(entered))
+						addTodo($(this).val());
+				$(this).val('');
 			}
 		});
 
@@ -38,17 +39,24 @@
 		$(".main").on("click","._btnDestroy", function(e){
 			var $li = $(this).parents("li");
 			var id = $li.attr("data-id");
-			$.ajax({
-				method: "DELETE",
-				url : "/api/todos/"+id,
-				headers: {
-					"X-HTTP-Method-Override" : "DELETE"}
-			}).done(function( res ) {
-				$li.slideUp("slow", function(){ $(this).remove(); })
-				getCount(UNCOMPLETED, COMPLETION_MODE);
 
-			})
+			removeTodo(id, $li);
 		});
+
+		// 투두 완료 목록 삭제
+		$("#_clearCompleted").on("click", function() {
+				var $completedLi = $(".completed");
+				var arrIdObj = [];
+
+				// id를 키로 갖는 객체 배열 생성
+				$completedLi.each(function(index){
+					var id = $(this).attr("data-id");
+					var obj = {};
+					obj["id"] = id;
+					arrIdObj.push(obj);
+				});
+				removeTodoList(arrIdObj, $completedLi);
+		})
 
 		// 필터링 버튼 클릭 시 selected 클래스 추가/제거 (공통)
 		$("._btn_filter").on("click", function(e){
@@ -57,6 +65,7 @@
 				$("._btn_filter").removeClass("selected");
 				$(this).addClass("selected");
 		})
+
 		// 투두 all버튼 이벤트 바인딩 ( 투두 전체 리스트 가져옴)
 		$("#btn_all").on("click", function(e){
 			getList();
@@ -91,7 +100,7 @@
 			$.ajax({
 			  method: "POST",
 			  url: "/api/todos",
-			  headers: {'Content-Type' :"application/json"},
+			  headers: {"Content-Type" :"application/json"},
 			  data: JSON.stringify({ todo: strTodo })
 			})
 			  .done(function( res ) {
@@ -145,6 +154,37 @@
 			}).done(function(res){
 				$("#count").text(res);
 			});
+		}
+
+		// 투두 목록 1개 삭제하는 함수
+		function removeTodo(id, $li) {
+			$.ajax({
+				method: "DELETE",
+				url : "/api/todos/"+id,
+				headers: {
+					"X-HTTP-Method-Override" : "DELETE"}
+			}).done(function( res ) {
+				$li.slideUp("slow", function(){ $(this).remove(); })
+				getCount(UNCOMPLETED, COMPLETION_MODE);
+
+			})
+		}
+
+		// 배열로 이루어진 투두 목록을 삭제하는 함수 
+		// arrIdObj - id를 키로 갖는 객체 배열
+		// $lists - jquery selector로, 지울 list 전체
+		function removeTodoList(arrIdObj, $lists) {
+			$.ajax({
+				method: "DELETE",
+				url : "/api/todos",
+				data : JSON.stringify(arrIdObj),
+				headers: {
+					"Content-Type" :"application/json",
+					"X-HTTP-Method-Override" : "DELETE"}
+			}).done(function( res ) {
+				$lists.slideUp("slow", function(){ $(this).remove(); })
+				getCount(UNCOMPLETED, COMPLETION_MODE);
+			})
 		}
 
 	});

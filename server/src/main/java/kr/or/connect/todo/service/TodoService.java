@@ -2,11 +2,14 @@ package kr.or.connect.todo.service;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import kr.or.connect.todo.domain.Todo;
 import kr.or.connect.todo.domain.TodoCri;
@@ -55,6 +58,13 @@ public class TodoService {
 		Integer id = todoDao.insert(todo);
 		todo.setId(id);
 		return todo;
+	}
+	
+	@Transactional
+	public void removeByList(List<Map<String,Integer>> idList) {
+		for(Map<?, ?> map: idList) {
+			removeById((Integer)map.get("id"));
+		}
 	}
 	
 	public Integer removeById(Integer id) {
