@@ -1,8 +1,21 @@
-/*
-
-app-template.css overrides
-
-remove this comment if used
-remove this file if not
-
-*/
+@charset 'UTF-8';
+.hide {
+	display: none !important;
+}
+.loading_wrap {
+	position: fixed;
+	top : 0;
+	left : 0;
+	right : 0;
+	bottom: 0;
+	z-index : 1000;
+}
+.loading {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 64px;
+	height: 64px;
+	margin: -32px 0 0 -32px;
+	background: url(../img/loading.svg);
+}
