@@ -9,6 +9,7 @@ public class TodoCri {
 	// ALL_MODE - 전체 검색 
 	// COMPLETION_MODE - COMPLTED 혹은 UNCOMPLETED로 검색 
 	public static String COMPLETION_MODE = "COMPLETION";
+	public static String ALL_MODE = "ALL";
 	
 	private Integer completed;
 	private String filtering;

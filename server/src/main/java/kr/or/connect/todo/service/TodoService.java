@@ -27,29 +27,25 @@ public class TodoService {
 		this.todoDao = todoDao;
 	}
 	
-	public Collection<Todo> findAll() { 
-		return todoDao.selectAll();
-	}
-	
 	public Todo findById(Integer id) {
 		return todoDao.selectById(id);
 	}
 	
 	public Collection<Todo> findByCri(TodoCri todoCri) {
-		if(todoCri.getFiltering().equals(TodoCri.COMPLETION_MODE))
+		if(todoCri.getFiltering().equals(TodoCri.ALL_MODE))
+			return todoDao.selectAll();
+		else if(todoCri.getFiltering().equals(TodoCri.COMPLETION_MODE))
 			return todoDao.selectByCompleted(todoCri.getCompleted());
 		else 
 			throw new IllegalArgumentException("Not supported Mode");
 	}
 	
-	public Integer calcCountAll(){
-		return todoDao.countAll();
-	}
-	
 	public Integer calcCountByCri(TodoCri todoCri) {
-		if(todoCri.getFiltering().equals(TodoCri.COMPLETION_MODE))
+		if(todoCri.getFiltering().equals(TodoCri.ALL_MODE))
+			return todoDao.countAll();
+		else if(todoCri.getFiltering().equals(TodoCri.COMPLETION_MODE))
 			return todoDao.countByCompleted(todoCri.getCompleted());
-		else
+		else 
 			throw new IllegalArgumentException("Not supported Mode");
 	}
 	
@@ -71,12 +67,19 @@ public class TodoService {
 		return todoDao.deleteById(id);
 	}
 	
-	public Integer modify(Integer id, Integer completed) {
+	public Integer modifyCompleted(Integer id, Integer completed) {
 		Todo oldTodo = todoDao.selectById(id);
-		log.info(oldTodo.toString());
 		oldTodo.setCompleted(completed);
-		log.info("whthwhtwhthwthwht");
 		log.info(oldTodo.toString());
-		return todoDao.update(oldTodo);
+		return modify(oldTodo);
+	}
+	public Integer modifyTodo(Integer id, String todo) {
+		Todo oldTodo = todoDao.selectById(id);
+		oldTodo.setTodo(todo);
+		log.info(oldTodo.toString());
+		return modify(oldTodo);
+	}
+	public Integer modify(Todo newTodo) {
+		return todoDao.update(newTodo);
 	}
 }

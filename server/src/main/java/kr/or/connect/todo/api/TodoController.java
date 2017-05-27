@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,21 +38,23 @@ public class TodoController {
 	
 	@GetMapping
 	Collection<Todo> readList(TodoCri todoCri) {
-		if(todoCri.getFiltering()!=null){
-			log.info(todoCri.toString());
-			return todoService.findByCri(todoCri);
-		}
-		else
-			return todoService.findAll();
+//		if(todoCri.getFiltering().equals(TodoCri.ALL_MODE))
+//			return todoService.findAll();
+//		else {
+//			log.info(todoCri.toString());
+//			return todoService.findByCri(todoCri);
+//		}
+		return todoService.findByCri(todoCri);
 	}
 	@GetMapping("/count")
 	Integer calcCount(TodoCri todoCri) {
-		if(todoCri.getFiltering()!=null) {
-			return todoService.calcCountByCri(todoCri);
-		}
-		else {
-			return todoService.calcCountAll();
-		}
+//		if(todoCri.getFiltering()!=null) {
+//			return todoService.calcCountByCri(todoCri);
+//		}
+//		else {
+//			return todoService.calcCountAll();
+//		}
+		return todoService.calcCountByCri(todoCri);
 	}
 	
 	@PostMapping
@@ -76,11 +78,16 @@ public class TodoController {
 		todoService.removeByList(idList);
 	}
 	
-	@PutMapping("/{id}/completion")
+	@PatchMapping("/{id}/completion")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	void modify(@PathVariable Integer id, @RequestParam Integer completed){
-		log.info(completed+"");
-		todoService.modify(id, completed);
+	void modify(@PathVariable Integer id, @RequestParam Integer completed) {
+		todoService.modifyCompleted(id, completed);
+	}
+	
+	@PatchMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	void modify(@PathVariable Integer id, @RequestParam String todo) {
+		todoService.modifyTodo(id, todo);
 	}
 	
 }
