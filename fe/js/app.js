@@ -74,8 +74,8 @@
 			removeTodo(id, $li);
 		});
 
-		// 투두 완료 목록 삭제 이벤트 델리게이션
-		$(".todoapp").on("click", "._clearCompleted", function() {
+		// 투두 완료 목록 삭제 이벤트 바인딩
+		$("._clearCompleted").on("click", function() {
 				var $completedLi = $(".completed");
 				var arrIdObj = [];
 
@@ -90,25 +90,25 @@
 		})
 
 		// 필터링 버튼 클릭 시 selected 클래스 추가/제거 (공통)
-		$(".todoapp").on("click", "._btn_filter", function(e) {
+		$("._btn_filter").on("click", function(e) {
 			// a태그 기본 이벤트 막음
 				e.preventDefault();
 				$("._btn_filter").removeClass("selected");
 				$(this).addClass("selected");
 		})
 
-		// 투두 all버튼 이벤트 델리게이션 ( 투두 전체 리스트 가져옴)
-		$(".todoapp").on("click", ".btn_all", function(e) {
+		// 투두 all버튼 이벤트 바인딩 ( 투두 전체 리스트 가져옴)
+		$(".btn_all").on("click", function(e) {
 			getList();
 		})
 
-		// 투두 active버튼 이벤트 델리게이션 ( 미완료 리스트 가져옴)
-		$(".todoapp").on("click", ".btn_active", function(e) {
+		// 투두 active버튼 이벤트 바인딩 ( 미완료 리스트 가져옴)
+		$(".btn_active").on("click", function(e) {
 			getList(UNCOMPLETED, COMPLETION_MODE);
 		})
 
-		// 투두 completed 버튼 이벤트 델리게이션 ( 완료 리스트 가져옴)
-		$(".todoapp").on("click", ".btn_completed", function(e) {
+		// 투두 completed 버튼 이벤트 바인딩 ( 완료 리스트 가져옴)
+		$(".btn_completed").on("click", function(e) {
 			getList(COMPLETED, COMPLETION_MODE);
 		})
 
