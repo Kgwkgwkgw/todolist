@@ -10,7 +10,7 @@ public class Todo {
 	private int id;
 	
 	@NotNull
-	@NotBlank(message="공백은 입력이 불가능합니다.")
+	@NotBlank(message="내용을 입력 해주세요.")
 	private String todo;
 	private int completed;
 	private Date date;
