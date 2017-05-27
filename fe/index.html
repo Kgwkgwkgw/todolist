@@ -49,17 +49,17 @@
 				<!-- Remove this if you don't implement routing -->
 				<ul class="filters">
 					<li>
-						<a class="selected _btn_filter" href="#/" id="btn_all" aria-role="button">All</a>
+						<a class="selected _btn_filter btn_all" href="#/" aria-role="button">All</a>
 					</li>
 					<li>
-						<a href="#/active" class="_btn_filter" id="btn_active" aria-role="button">Active</a>
+						<a href="#/active" class="_btn_filter btn_active" aria-role="button">Active</a>
 					</li>
 					<li>
-						<a href="#/completed" class="_btn_filter" id="btn_completed" aria-role="button">Completed</a>
+						<a href="#/completed" class="_btn_filter btn_completed" aria-role="button">Completed</a>
 					</li>
 				</ul>
 				<!-- Hidden if no completed items are left ↓ -->
-				<button class="clear-completed" id="_clearCompleted">Clear completed</button>
+				<button class="clear-completed _clearCompleted">Clear completed</button>
 			</footer>
 		</section>
 		<footer class="info">
@@ -70,15 +70,11 @@
 			<p>Created by <a href="http://todomvc.com">you</a></p>
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
-		<div class="loading_wrap hide">
+		<div class="loading_area hide">
 			<div class="loading"></div>
 		</div>
-		<div class="layer_wrap hide">
-			<div class="layer">
-				<strong class="title"></strong>
-				<p class="content"></p>
-				<button class="btn_close">확인</button>
-			</div>
+		<div class="popup_area hide">
+			<div class="layer_wrap"></div>
 		</div>
 		<!-- Scripts here. Don't remove ↓ -->
 		<script src="node_modules/todomvc-common/base.js"></script>

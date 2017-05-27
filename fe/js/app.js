@@ -1,19 +1,45 @@
-(function (window, $) {
+(function (window, $, Template) {
 	$(function(){
 		'use strict';
 		// 공백으로만 이루어져있지는 않은지 검사하는 정규식
 		var regCheckNoWhitespace = /.*\S+.*/;
-		var COMPLETED = 1;
 		var UNCOMPLETED = 0;
+		var COMPLETED = 1;
 		var COMPLETION_MODE = "COMPLETION";
-
 		// 투두 목록 다 가져옵니다.
 		getList();
 
 		var $ul = $(".todo-list");
 
+		// 리스트 더블 클릭 시, 수정 input창 나타남
+		$(".todoapp").on("dblclick", ".item", function() {
+			$(this).addClass("editing");
+		})
+
+		// 수정입력 창 포커스 잃을 시, 수정 input창 없앰
+		$(".todoapp").on("blur", ".item", function() {
+			$(this).removeClass("editing");
+		})
+
+		$(".todoapp").on("keydown", ".edit", function(e) {
+			// 엔터키 눌렸을 떄
+			if(e.which == 13) {
+				var entered = $(this).val();
+				if(regCheckNoWhitespace.test(entered)) {
+						var $li = $(this).parents(".item");
+						editTodo($li.attr("data-id"), $(this).val(), $li);
+				}
+				else {
+					render($(".popup_area"), Template.popup("알림", "내용을 입력 해주세요^^", "확인"), true);
+					$(".popup_area").removeClass("hide");
+				}
+				// 인풋 값 초기화
+				$(this).val('');
+			}
+		})
+
 		// 투두 입력 창 이벤트 바인딩
-		$(".new-todo").on("keydown",function(e) {
+		$(".new-todo").on("keydown", function(e) {
 			// 엔터키 눌렸을 떄
 			if(e.which == 13) {
 				var entered = $(this).val();
@@ -21,8 +47,8 @@
 						addTodo($(this).val());
 				}
 				else {
-					Template.popup("알림", "내용을 입력 해주세요^^");
-					$(".layer_wrap").removeClass("hide");
+					render($(".popup_area"), Template.popup("알림", "내용을 입력 해주세요^^", "확인"), true);
+					$(".popup_area").removeClass("hide");
 				}
 				// 인풋 값 초기화
 				$(this).val('');
@@ -30,26 +56,26 @@
 		});
 
 		// 투두 완료/ 미완료 버튼 이벤트 델리게이션
-		$(".main").on("click","._btnComplete", function(e) {
-			var $li = $(this).parents("li");
+		$(".todoapp").on("click","._btnComplete", function(e) {
+			var $li = $(this).parents(".item");
 			var currentStatus = $li.hasClass("completed") ? COMPLETED : UNCOMPLETED;
-			// xor 연산
-			var tobeStatus = currentStatus ^ 1 ;
+			// ( status toggle)
+			var tobeStatus = (currentStatus == COMPLETED) ? UNCOMPLETED : COMPLETED ;
 			var id = $li.attr("data-id");
 
 			toggleCompletion($li, tobeStatus, id);
 		});
 
 		// 투두 삭제 버튼 이벤트 델리게이션
-		$(".main").on("click","._btnDestroy", function(e) {
-			var $li = $(this).parents("li");
+		$(".todoapp").on("click","._btnDestroy", function(e) {
+			var $li = $(this).parents(".item");
 			var id = $li.attr("data-id");
 
 			removeTodo(id, $li);
 		});
 
-		// 투두 완료 목록 삭제
-		$("#_clearCompleted").on("click", function() {
+		// 투두 완료 목록 삭제 이벤트 델리게이션
+		$(".todoapp").on("click", "._clearCompleted", function() {
 				var $completedLi = $(".completed");
 				var arrIdObj = [];
 
@@ -64,50 +90,54 @@
 		})
 
 		// 필터링 버튼 클릭 시 selected 클래스 추가/제거 (공통)
-		$("._btn_filter").on("click", function(e) {
+		$(".todoapp").on("click", "._btn_filter", function(e) {
 			// a태그 기본 이벤트 막음
 				e.preventDefault();
 				$("._btn_filter").removeClass("selected");
 				$(this).addClass("selected");
 		})
 
-		// 투두 all버튼 이벤트 바인딩 ( 투두 전체 리스트 가져옴)
-		$("#btn_all").on("click", function(e) {
+		// 투두 all버튼 이벤트 델리게이션 ( 투두 전체 리스트 가져옴)
+		$(".todoapp").on("click", ".btn_all", function(e) {
 			getList();
 		})
 
-		// 투두 active버튼 이벤트 바인딩 ( 미완료 리스트 가져옴)
-		$("#btn_active").on("click", function(e) {
+		// 투두 active버튼 이벤트 델리게이션 ( 미완료 리스트 가져옴)
+		$(".todoapp").on("click", ".btn_active", function(e) {
 			getList(UNCOMPLETED, COMPLETION_MODE);
 		})
 
-		// 투두 completed버튼 이벤트 바인딩 ( 완료 리스트 가져옴)
-		$("#btn_completed").on("click", function(e) {
+		// 투두 completed 버튼 이벤트 델리게이션 ( 완료 리스트 가져옴)
+		$(".todoapp").on("click", ".btn_completed", function(e) {
 			getList(COMPLETED, COMPLETION_MODE);
 		})
 
-		$(".btn_close").on("click", function(e) {
-				$(".layer_wrap").addClass("hide");
+		// 팝업 레이어 끄기 이벤트 델리게이션
+		$(".popup_area").on("click", ".btn_close", function(e) {
+				$(".popup_area").addClass("hide");
 		})
-
-		$(document).ajaxError(function (event, xhr, ajaxOptions, thrownError) {
-				console.log(xhr.responseJSON.errors);
-				Template.popup("알림", "일시적 오류가 발생하였습니다.");
-				$(".layer_wrap").removeClass("hide");
-		});
 
 		// 투두 완료/미완료 처리 함수
 		function toggleCompletion($li, tobeStatus, id) {
 			$.ajax({
-				method: "PUT",
+				method: "PATCH",
 				url : "/api/todos/"+id+"/completion",
 				headers: {
-					"X-HTTP-Method-Override" : "PUT"},
+					"X-HTTP-Method-Override" : "PATCH"},
 				data: { completed : tobeStatus }
 			}).done(function( res ) {
 				$li.toggleClass("completed");
 				getCount(UNCOMPLETED, COMPLETION_MODE);
 			});
+		}
+
+		// 화면에  출력하는 함수
+		function render($parent, $child, isReset) {
+				isReset = isReset || false;
+				if(isReset)
+					$parent.empty();
+
+				$parent.prepend($child);
 		}
 
 		// 투두 추가 처리 함수
@@ -120,9 +150,22 @@
 			})
 			  .done(function( res ) {
 				  var $li = Template.getLi(res);
-				  Template.addLi($ul, $li);
+				  render($ul, $li);
 				  getCount(UNCOMPLETED,COMPLETION_MODE);
 			  })
+		}
+
+		// 투두 수정 처리 함수
+		function editTodo(id, strTodo, $li) {
+			$.ajax({
+				method: "PATCH",
+				url : "/api/todos/"+id,
+				data : {"todo" : strTodo}
+			})
+				.done(function(res) {
+						$li.find("label").text(strTodo);
+						$li.removeClass("editing");
+				})
 		}
 
 		// 투두리스트 가져오는 함수
@@ -130,6 +173,10 @@
 		// (매개 변수 없이 호출 시 전체검색)
 		// isCompleted - 완료한 일 가져올지 , 미완료한 일 가져올지에 대한 변수
 		function getList(isCompleted, mode) {
+
+			isCompleted = (isCompleted != undefined ) ? isCompleted : -1;
+			mode = mode || "ALL";
+
 			$.ajax({
 				method: "GET",
 				url: "/api/todos",
@@ -137,7 +184,7 @@
 				beforeSend: function()
 			    {
 							$(".todo-list").empty();
-			        $(".dimmed_wrap").removeClass("hide");
+			        $(".loading_area").removeClass("hide");
 			    },
 				data : {
 					filtering : mode,
@@ -146,11 +193,11 @@
 			}).done(function( res ) {
 				$.each(res, function(idx, obj){
 					var $li = Template.getLi(obj);
-					Template.addLi($ul,$li);
+					render($ul,$li);
 				})
 				// 미 완료 투두 개수 세기
 				getCount(UNCOMPLETED, COMPLETION_MODE);
-				$(".loading_wrap").addClass("hide");
+				$(".loading_area").addClass("hide");
 			});
 		}
 
@@ -158,7 +205,10 @@
 		// mode - 전체 검색이 아닌 조건을 걸 모드 ( 전체 검색 할지 아니면 완성 혹은 미완성 투두 개수 셀 것인지에 대한 변수)
 		// (매개 변수 없이 호출 시 전체검색)
 		// isCompleted - 완료한 일 셀지, 미완료한 일 셀지에대한 변수
-		function getCount(isCompleted,mode) {
+		function getCount(isCompleted, mode) {
+			isCompleted = (isCompleted != undefined ) ? isCompleted : -1;
+			mode = mode || "ALL";
+
 			$.ajax({
 				method: "GET",
 				url: "/api/todos/count",
@@ -202,5 +252,12 @@
 			})
 		}
 
+		// ajax 호출 실패 시 팝업 노출
+		$(document).ajaxError(function (event, xhr, ajaxOptions, thrownError) {
+				console.log(xhr);
+				render($(".popup_area"), Template.popup("알림", "일시적 오류가 발생하였습니다."), true);
+				$(".popup_area").removeClass("hide");
+		});
+
 	});
-})(window, $);
+})(window, jQuery, Template);
