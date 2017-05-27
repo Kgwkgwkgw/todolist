@@ -10,22 +10,27 @@
 		// 투두 목록 다 가져옵니다.
 		getList();
 
-		// Your starting point. Enjoy the ride!
 		var $ul = $(".todo-list");
 
 		// 투두 입력 창 이벤트 바인딩
-		$(".new-todo").on("keyup",function(e){
-			// enter key pressed
+		$(".new-todo").on("keydown",function(e) {
+			// 엔터키 눌렸을 떄
 			if(e.which == 13) {
 				var entered = $(this).val();
-				if(regCheckNoWhitespace.test(entered))
+				if(regCheckNoWhitespace.test(entered)) {
 						addTodo($(this).val());
+				}
+				else {
+					Template.popup("알림", "내용을 입력 해주세요^^");
+					$(".layer_wrap").removeClass("hide");
+				}
+				// 인풋 값 초기화
 				$(this).val('');
 			}
 		});
 
 		// 투두 완료/ 미완료 버튼 이벤트 델리게이션
-		$(".main").on("click","._btnComplete", function(e){
+		$(".main").on("click","._btnComplete", function(e) {
 			var $li = $(this).parents("li");
 			var currentStatus = $li.hasClass("completed") ? COMPLETED : UNCOMPLETED;
 			// xor 연산
@@ -36,7 +41,7 @@
 		});
 
 		// 투두 삭제 버튼 이벤트 델리게이션
-		$(".main").on("click","._btnDestroy", function(e){
+		$(".main").on("click","._btnDestroy", function(e) {
 			var $li = $(this).parents("li");
 			var id = $li.attr("data-id");
 
@@ -49,7 +54,7 @@
 				var arrIdObj = [];
 
 				// id를 키로 갖는 객체 배열 생성
-				$completedLi.each(function(index){
+				$completedLi.each(function(index) {
 					var id = $(this).attr("data-id");
 					var obj = {};
 					obj["id"] = id;
@@ -59,7 +64,7 @@
 		})
 
 		// 필터링 버튼 클릭 시 selected 클래스 추가/제거 (공통)
-		$("._btn_filter").on("click", function(e){
+		$("._btn_filter").on("click", function(e) {
 			// a태그 기본 이벤트 막음
 				e.preventDefault();
 				$("._btn_filter").removeClass("selected");
@@ -67,19 +72,29 @@
 		})
 
 		// 투두 all버튼 이벤트 바인딩 ( 투두 전체 리스트 가져옴)
-		$("#btn_all").on("click", function(e){
+		$("#btn_all").on("click", function(e) {
 			getList();
 		})
 
 		// 투두 active버튼 이벤트 바인딩 ( 미완료 리스트 가져옴)
-		$("#btn_active").on("click", function(e){
+		$("#btn_active").on("click", function(e) {
 			getList(UNCOMPLETED, COMPLETION_MODE);
 		})
 
 		// 투두 completed버튼 이벤트 바인딩 ( 완료 리스트 가져옴)
-		$("#btn_completed").on("click", function(e){
+		$("#btn_completed").on("click", function(e) {
 			getList(COMPLETED, COMPLETION_MODE);
 		})
+
+		$(".btn_close").on("click", function(e) {
+				$(".layer_wrap").addClass("hide");
+		})
+
+		$(document).ajaxError(function (event, xhr, ajaxOptions, thrownError) {
+				console.log(xhr.responseJSON.errors);
+				Template.popup("알림", "일시적 오류가 발생하였습니다.");
+				$(".layer_wrap").removeClass("hide");
+		});
 
 		// 투두 완료/미완료 처리 함수
 		function toggleCompletion($li, tobeStatus, id) {
@@ -107,14 +122,14 @@
 				  var $li = Template.getLi(res);
 				  Template.addLi($ul, $li);
 				  getCount(UNCOMPLETED,COMPLETION_MODE);
-			  });
+			  })
 		}
 
 		// 투두리스트 가져오는 함수
 		// mode - 전체 검색이 아닌 조건을 걸 모드 ( 전체 검색 할지 아니면 완성 혹은 미완성 투두 개수 셀 것인지에 대한 변수)
 		// (매개 변수 없이 호출 시 전체검색)
 		// isCompleted - 완료한 일 가져올지 , 미완료한 일 가져올지에 대한 변수
-		function getList(isCompleted, mode){
+		function getList(isCompleted, mode) {
 			$.ajax({
 				method: "GET",
 				url: "/api/todos",
@@ -143,7 +158,7 @@
 		// mode - 전체 검색이 아닌 조건을 걸 모드 ( 전체 검색 할지 아니면 완성 혹은 미완성 투두 개수 셀 것인지에 대한 변수)
 		// (매개 변수 없이 호출 시 전체검색)
 		// isCompleted - 완료한 일 셀지, 미완료한 일 셀지에대한 변수
-		function getCount(isCompleted,mode){
+		function getCount(isCompleted,mode) {
 			$.ajax({
 				method: "GET",
 				url: "/api/todos/count",
@@ -170,13 +185,13 @@
 			})
 		}
 
-		// 배열로 이루어진 투두 목록을 삭제하는 함수 
+		// 배열로 이루어진 투두 목록을 삭제하는 함수
 		// arrIdObj - id를 키로 갖는 객체 배열
 		// $lists - jquery selector로, 지울 list 전체
 		function removeTodoList(arrIdObj, $lists) {
 			$.ajax({
 				method: "DELETE",
-				url : "/api/todos",
+				url : "/api/todos/",
 				data : JSON.stringify(arrIdObj),
 				headers: {
 					"Content-Type" :"application/json",

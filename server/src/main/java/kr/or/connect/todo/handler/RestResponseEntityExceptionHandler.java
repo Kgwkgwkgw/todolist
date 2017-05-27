@@ -19,15 +19,17 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import kr.or.connect.todo.domain.ApiError;
 
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 	
-	// MethodArgumentNotValidException - @Valid failed validation 
+	// MethodArgumentNotValidException - @Valid failed validation
 	@Override
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(
+	protected ResponseEntity<Object> handleMethodArgumentNotValid (
 	  MethodArgumentNotValidException ex, 
 	  HttpHeaders headers, 
 	  HttpStatus status, 
@@ -47,7 +49,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	
 	// MissingServletRequestParameterException - Request param missing 
 	@Override
-	protected ResponseEntity<Object> handleMissingServletRequestParameter(
+	protected ResponseEntity<Object> handleMissingServletRequestParameter (
 	  MissingServletRequestParameterException ex, HttpHeaders headers, 
 	  HttpStatus status, WebRequest request) {
 		Map<String, Object> error = new HashMap<>();
@@ -60,7 +62,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	
 	// ConstraintViolationException  - constraint violations 
 	@ExceptionHandler({ ConstraintViolationException.class })
-	public ResponseEntity<Object> handleConstraintViolation(
+	public ResponseEntity<Object> handleConstraintViolation (
 	  ConstraintViolationException ex, WebRequest request) {
 		Map<String, Object> errors = new HashMap<>();
 	    for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
@@ -75,12 +77,35 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	
 	// MethodArgumentTypeMismatchException - argument missmatching
 	@ExceptionHandler({ MethodArgumentTypeMismatchException.class })
-	public ResponseEntity<Object> handleMethodArgumentTypeMismatch(
+	public ResponseEntity<Object> handleMethodArgumentTypeMismatch (
 	MethodArgumentTypeMismatchException ex, WebRequest request) {
 		Map<String, Object> error = new HashMap<>();
 		error.put(ex.getName(), "should be of type " + ex.getRequiredType().getName());
 		ApiError apiError = 
 			new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
 		return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+	}
+	
+	// invalid JSON format handling 
+	@ExceptionHandler({JsonMappingException.class})
+	public ResponseEntity<Object> handleJsonMappingException (
+			JsonMappingException ex, WebRequest request) {
+		Map<String, Object> error = new HashMap<>();
+		error.put("msg",ex.getMessage());
+		ApiError apiError = 
+			new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+		return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+	}
+	
+	// etc 
+	@ExceptionHandler({Exception.class})
+	public ResponseEntity<Object> handleJsonMappingException (
+			Exception ex, WebRequest request) {
+		Map<String, Object> error = new HashMap<>();
+		error.put("url", request.getDescription(false));
+		error.put("msg", ex.getLocalizedMessage());
+		ApiError apiError = 
+				new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+			return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 }
