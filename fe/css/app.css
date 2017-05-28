@@ -1,4 +1,4 @@
-@charset 'UTF-8';
+@charset "UTF-8";
 .hide {
 	display: none !important;
 }
@@ -10,6 +10,9 @@
 	right : 0;
 	bottom: 0;
 	z-index : 1000;
+}
+.popup_area {
+	background: rgba(0,0,0,0.7);
 }
 .loading {
 	position: absolute;
