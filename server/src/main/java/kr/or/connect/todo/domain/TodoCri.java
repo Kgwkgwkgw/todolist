@@ -17,7 +17,7 @@ public class TodoCri {
 	//디포트 값 
 	public TodoCri() {
 		this.completed = 0;
-		this.filtering = null;
+		this.filtering = ALL_MODE;
 	}
 	
 	@Override
