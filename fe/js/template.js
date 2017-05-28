@@ -1,5 +1,7 @@
-'use strict';
-var Template = {
+window.todo = window.todo || {};
+window.todo.template = (function ($){
+  'use strict';
+  return {
     getLi : function(objTodo) {
       var $li = $( "<li class='item'>" ).attr("data-id", objTodo.id);
       var $div = $("<div class='view'>");
@@ -22,29 +24,6 @@ var Template = {
       $li.append($div);
       $li.append($text_edit);
       return $li;
-    },
-    popup : function(title, content, close_text) {
-      title = title || "알림";
-      content = content || "일시적 오류가 발생하였습니다.";
-      close_text = close_text || "확인";
-      var $layer_wrap = $("<div class='layer_wrap'>");
-      var $layer = $("<div class='layer'>");
-      var $layer_inner = $("<div class='layer_inner'>");
-      var $title = $("<strong class='title'>");
-      var $content = $("<p class='content'>");
-      var $btn_close = $("<button class='btn_close'>");
-
-      $title.text(title);
-      $content.text(content);
-      $btn_close.text(close_text);
-
-      //돔 트리 만들기
-      $layer.append($layer_inner);
-      $layer_inner.append($title)
-      .append($content)
-      .append($btn_close);
-      $layer_wrap.append($layer);
-
-      return $layer_wrap;
     }
-}
+  }
+}(jQuery)
