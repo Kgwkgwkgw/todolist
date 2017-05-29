@@ -2,14 +2,11 @@ package kr.or.connect.todo.service;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import kr.or.connect.todo.domain.Todo;
 import kr.or.connect.todo.domain.TodoCri;
@@ -32,21 +29,17 @@ public class TodoService {
 	}
 	
 	public Collection<Todo> findByCri(TodoCri todoCri) {
-		if(todoCri.getFiltering().equals(TodoCri.ALL_MODE))
-			return todoDao.selectAll();
-		else if(todoCri.getFiltering().equals(TodoCri.COMPLETION_MODE))
+		if(todoCri.getCompleted()!=null)
 			return todoDao.selectByCompleted(todoCri.getCompleted());
-		else 
-			throw new IllegalArgumentException("Not supported Mode");
+		else
+			return todoDao.selectAll();
 	}
 	
 	public Integer calcCountByCri(TodoCri todoCri) {
-		if(todoCri.getFiltering().equals(TodoCri.ALL_MODE))
-			return todoDao.countAll();
-		else if(todoCri.getFiltering().equals(TodoCri.COMPLETION_MODE))
+		if(todoCri.getCompleted()!=null)
 			return todoDao.countByCompleted(todoCri.getCompleted());
 		else 
-			throw new IllegalArgumentException("Not supported Mode");
+			return todoDao.countAll();
 	}
 	
 	public Todo create(Todo todo) {
@@ -56,30 +49,26 @@ public class TodoService {
 		return todo;
 	}
 	
-	@Transactional
-	public void removeByList(List<Map<String,Integer>> idList) {
-		for(Map<?, ?> map: idList) {
-			removeById((Integer)map.get("id"));
-		}
+	public Integer removeByCri(TodoCri todoCri) {
+		return todoDao.deleteByCompleted(todoCri.getCompleted());
 	}
 	
 	public Integer removeById(Integer id) {
 		return todoDao.deleteById(id);
 	}
 	
-	public Integer modifyCompleted(Integer id, Integer completed) {
+	public Integer modify(Integer id, Todo newTodo) {
 		Todo oldTodo = todoDao.selectById(id);
-		oldTodo.setCompleted(completed);
-		log.info(oldTodo.toString());
-		return modify(oldTodo);
+		setModified(oldTodo, newTodo);
+		log.info("{}", oldTodo);
+		return todoDao.update(oldTodo);
 	}
-	public Integer modifyTodo(Integer id, String todo) {
-		Todo oldTodo = todoDao.selectById(id);
-		oldTodo.setTodo(todo);
-		log.info(oldTodo.toString());
-		return modify(oldTodo);
-	}
-	public Integer modify(Todo newTodo) {
-		return todoDao.update(newTodo);
+	// 수정할 Todo 필드가 있으면 변경합니다. 
+	// 수정 가능 필드 : completed, todo 
+	private void setModified(Todo oldTodo, Todo modifiedTodo) {
+		if(modifiedTodo.getCompleted()!=null)
+			oldTodo.setCompleted(modifiedTodo.getCompleted());
+		else if(modifiedTodo.getTodo()!=null)
+			oldTodo.setTodo(modifiedTodo.getTodo());
 	}
 }

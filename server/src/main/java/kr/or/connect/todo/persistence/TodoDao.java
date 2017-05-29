@@ -1,5 +1,14 @@
 package kr.or.connect.todo.persistence;
 
+import static kr.or.connect.todo.persistence.TodoSqls.COUNT_ALL;
+import static kr.or.connect.todo.persistence.TodoSqls.COUNT_BY_COMPLETED;
+import static kr.or.connect.todo.persistence.TodoSqls.DELETE_BY_ID;
+import static kr.or.connect.todo.persistence.TodoSqls.DELETE_BY_COMPLETED;
+import static kr.or.connect.todo.persistence.TodoSqls.SELECT_ALL;
+import static kr.or.connect.todo.persistence.TodoSqls.SELECT_BY_ID;
+import static kr.or.connect.todo.persistence.TodoSqls.SElECT_BY_COMPLETED;
+import static kr.or.connect.todo.persistence.TodoSqls.UPDATE;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +26,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import kr.or.connect.todo.domain.Todo;
-
-import static kr.or.connect.todo.persistence.TodoSqls.*;
 
 @Repository
 public class TodoDao {
@@ -75,9 +82,14 @@ public class TodoDao {
 		return jdbc.update(DELETE_BY_ID, params);
 	}
 	
+	public Integer deleteByCompleted(Integer completed) {
+		Map<String, ?> params = Collections.singletonMap("completed", completed);
+		return jdbc.update(DELETE_BY_COMPLETED, params);
+	}
+	
 	public Integer update(Todo todo) {
 		SqlParameterSource params = new BeanPropertySqlParameterSource(todo);
-		log.info(todo.toString());
+		log.info("{}",todo);
 		return jdbc.update(UPDATE, params);
 	}
 

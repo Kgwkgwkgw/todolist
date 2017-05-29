@@ -12,7 +12,7 @@ public class Todo {
 	@NotNull
 	@NotBlank(message="내용을 입력 해주세요.")
 	private String todo;
-	private int completed;
+	private Integer completed;
 	private Date date;
 	
 	public int getId() {
@@ -31,10 +31,10 @@ public class Todo {
 	public void setTodo(String todo) {
 		this.todo = todo;
 	}
-	public int getCompleted() {
+	public Integer getCompleted() {
 		return completed;
 	}
-	public void setCompleted(int completed) {
+	public void setCompleted(Integer completed) {
 		this.completed = completed;
 	}
 	public Date getDate() {

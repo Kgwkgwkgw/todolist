@@ -1,8 +1,6 @@
 package kr.or.connect.todo.api;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,22 +35,11 @@ public class TodoController {
 	
 	@GetMapping
 	Collection<Todo> readList(TodoCri todoCri) {
-//		if(todoCri.getFiltering().equals(TodoCri.ALL_MODE))
-//			return todoService.findAll();
-//		else {
-//			log.info(todoCri.toString());
-//			return todoService.findByCri(todoCri);
-//		}
 		return todoService.findByCri(todoCri);
 	}
+	
 	@GetMapping("/count")
 	Integer calcCount(TodoCri todoCri) {
-//		if(todoCri.getFiltering()!=null) {
-//			return todoService.calcCountByCri(todoCri);
-//		}
-//		else {
-//			return todoService.calcCountAll();
-//		}
 		return todoService.calcCountByCri(todoCri);
 	}
 	
@@ -73,21 +59,15 @@ public class TodoController {
 	
 	@DeleteMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	void removeList(@RequestBody List<Map<String,Integer>> idList) {
-		log.info("list {}", idList);
-		todoService.removeByList(idList);
-	}
-	
-	@PatchMapping("/{id}/completion")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	void modify(@PathVariable Integer id, @RequestParam Integer completed) {
-		todoService.modifyCompleted(id, completed);
+	void removeList(@RequestBody TodoCri todoCri) {
+		log.info("delete by todoCri {}",todoCri);
+		todoService.removeByCri(todoCri);
 	}
 	
 	@PatchMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	void modify(@PathVariable Integer id, @RequestParam String todo) {
-		todoService.modifyTodo(id, todo);
+	void modify(@PathVariable Integer id, @RequestBody Todo todo) {
+		todoService.modify(id, todo);
 	}
 	
 }

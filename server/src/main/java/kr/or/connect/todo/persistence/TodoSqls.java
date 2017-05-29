@@ -3,7 +3,9 @@ package kr.or.connect.todo.persistence;
 public class TodoSqls {
 	// TodoDao 쿼리
 	static final String DELETE_BY_ID =
-			"DELETE FROM todo WHERE id= :id";
+			"DELETE FROM todo WHERE id = :id";
+	static final String DELETE_BY_COMPLETED =
+			"DELETE FROM todo where completed = :completed";
 	static final String SELECT_ALL = "SELECT * FROM todo order by date asc";
 	static final String COUNT_ALL = "SELECT count(*) FROM todo";
 	// completed  1 -> 완료된 일

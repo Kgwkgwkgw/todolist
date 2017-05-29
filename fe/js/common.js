@@ -1,4 +1,5 @@
-window.common = (function ($){
+window.todo = window.todo || {};
+window.todo.common = (function ($){
   'use strict';
   // 팝업 최상위 엘레멘트
   var popupArea =".popup_area";

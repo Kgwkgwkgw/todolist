@@ -2,4 +2,4 @@
 	'use strict';
 	common.init();
 	todo.init();
-})(common, todo);
+})(window.todo.common, window.todo.main);

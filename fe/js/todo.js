@@ -1,10 +1,10 @@
-window.todo = (function ($, common){
+window.todo = window.todo || {};
+window.todo.main = (function ($, common){
   'use strict';
   // 공백으로만 이루어져있지는 않은지 검사하는 정규식
   var regCheckNoWhitespace = /.*\S+.*/;
   var UNCOMPLETED = 0;
   var COMPLETED = 1;
-  var COMPLETION_MODE = "COMPLETION";
   var TODOAPIURL = "/api/todos"
   // 투두 앱 시작
   var todoApp =".todoapp";
@@ -165,7 +165,8 @@ window.todo = (function ($, common){
       					obj["id"] = id;
       					arrIdObj.push(obj);
       				});
-      				removeTodoList(arrIdObj, $completedLi);
+              // 완료한 항목 삭제
+      				removeTodoList(COMPLETED, $completedLi);
       		}
         }
       ]
@@ -205,7 +206,7 @@ window.todo = (function ($, common){
         {
           event : "click",
           handling : function(e) {
-      			getList(UNCOMPLETED, COMPLETION_MODE);
+      			getList(UNCOMPLETED);
       		}
         }
       ]
@@ -217,7 +218,7 @@ window.todo = (function ($, common){
         {
           event : "click",
           handling : function(e) {
-      			getList(COMPLETED, COMPLETION_MODE);
+      			getList(COMPLETED);
       		}
         }
       ]
@@ -231,14 +232,15 @@ window.todo = (function ($, common){
   function toggleCompletion($li, tobeStatus, id) {
     $.ajax({
       method: "PATCH",
-      url : TODOAPIURL+"/"+id+"/completion",
+      url : TODOAPIURL+"/"+id,
       headers: {
+        "Content-Type" :"application/json",
         "X-HTTP-Method-Override" : "PATCH"},
-      data: { completed : tobeStatus }
+      data: JSON.stringify({ completed : tobeStatus })
     }).done(function( res ) {
       // .className -> className
       $li.toggleClass(todoLiToggle.slice(1));
-      getCount(UNCOMPLETED, COMPLETION_MODE);
+      getCount(UNCOMPLETED);
     });
   }
 
@@ -255,7 +257,7 @@ window.todo = (function ($, common){
         // 등록된 투두 추가함!
         var $li = getLi(res);
         common.render($(todoUl), $li);
-        getCount(UNCOMPLETED,COMPLETION_MODE);
+        getCount(UNCOMPLETED);
       })
   }
 
@@ -267,7 +269,10 @@ window.todo = (function ($, common){
     $.ajax({
       method: "PATCH",
       url : TODOAPIURL+"/"+id,
-      data : {"todo" : strTodo}
+      headers: {
+        "Content-Type" :"application/json",
+        "X-HTTP-Method-Override" : "PATCH"},
+      data : JSON.stringify({"todo" : strTodo})
     })
       .done(function(res) {
           $li.find("label").text(strTodo);
@@ -276,13 +281,9 @@ window.todo = (function ($, common){
   }
 
   // 투두리스트 가져오는 함수
-  // mode - 전체 검색이 아닌 조건을 걸 모드 ( 전체 검색 할지 아니면 완성 혹은 미완성 투두 개수 셀 것인지에 대한 변수)
   // (매개 변수 없이 호출 시 전체검색)
   // isCompleted - 완료한 일 가져올지 , 미완료한 일 가져올지에 대한 변수
-  function getList(isCompleted, mode) {
-
-    isCompleted = (isCompleted != undefined ) ? isCompleted : -1;
-    mode = mode || "ALL";
+  function getList(isCompleted) {
 
     $.ajax({
       method: "GET",
@@ -294,7 +295,6 @@ window.todo = (function ($, common){
             common.toggleLoading();
         },
       data : {
-        filtering : mode,
         completed: isCompleted
         }
     }).done(function( res ) {
@@ -303,24 +303,20 @@ window.todo = (function ($, common){
         common.render($(todoUl),$li);
       })
       // 미 완료 투두 개수 세기
-      getCount(UNCOMPLETED, COMPLETION_MODE);
+      getCount(UNCOMPLETED);
       common.toggleLoading();
     });
   }
 
   // 투두 개수 세는 함수
-  // mode - 전체 검색이 아닌 조건을 걸 모드 ( 전체 검색 할지 아니면 완성 혹은 미완성 투두 개수 셀 것인지에 대한 변수)
   // (매개 변수 없이 호출 시 전체검색)
   // isCompleted - 완료한 일 셀지, 미완료한 일 셀지에대한 변수
-  function getCount(isCompleted, mode) {
-    isCompleted = (isCompleted != undefined ) ? isCompleted : -1;
-    mode = mode || "ALL";
+  function getCount(isCompleted) {
 
     $.ajax({
       method: "GET",
       url: TODOAPIURL+"/count",
       data : {
-          filtering : mode,
           completed: isCompleted
           }
     }).done(function(res){
@@ -339,25 +335,27 @@ window.todo = (function ($, common){
         "X-HTTP-Method-Override" : "DELETE"}
     }).done(function( res ) {
       $li.slideUp("slow", function(){ $(this).remove(); })
-      getCount(UNCOMPLETED, COMPLETION_MODE);
+      getCount(UNCOMPLETED);
 
     })
   }
 
   // 배열로 이루어진 투두 목록을 삭제하는 함수
-  // arrIdObj - 투두 id를 키로 갖는 객체 배열
+  // completed - 완료 혹은 미완료 투두 삭제
   // $lists - jquery selector로, 지울 list 전체
-  function removeTodoList(arrIdObj, $lists) {
+  function removeTodoList(completed, $lists) {
     $.ajax({
       method: "DELETE",
       url : TODOAPIURL,
-      data : JSON.stringify(arrIdObj),
+      data : JSON.stringify({
+        completed : completed
+      }),
       headers: {
         "Content-Type" :"application/json",
         "X-HTTP-Method-Override" : "DELETE"}
     }).done(function( res ) {
       $lists.slideUp("slow", function(){ $(this).remove(); })
-      getCount(UNCOMPLETED, COMPLETION_MODE);
+      getCount(UNCOMPLETED);
     })
   }
 
@@ -395,4 +393,4 @@ window.todo = (function ($, common){
     }
   }
 
-})(jQuery, window.common);
+})(jQuery, window.todo.common);
