@@ -8,7 +8,16 @@ import org.hibernate.validator.constraints.NotBlank;
 
 public class Todo {
 	private int id;
-	
+	public Todo() {
+		
+	}
+	public Todo(String todo) {
+		this.todo = todo;
+	}
+	public Todo(String todo, Integer completed) {
+		this.todo = todo;
+		this.completed = completed;
+	}
 	@NotNull
 	@NotBlank(message="내용을 입력 해주세요.")
 	private String todo;

@@ -119,7 +119,6 @@ window.todo.main = (function ($, common){
         {
           event : "click",
           handling : function(e) {
-            console.log('here');
       			var $li = $(this).parents(todoLi);
             // .className -> className
       			var currentStatus = $li.hasClass(todoLiToggle.slice(1)) ? COMPLETED : UNCOMPLETED;
@@ -231,11 +230,11 @@ window.todo.main = (function ($, common){
   // id는 투두리스트 id
   function toggleCompletion($li, tobeStatus, id) {
     $.ajax({
-      method: "PATCH",
+      method: "PUT",
       url : TODOAPIURL+"/"+id,
       headers: {
         "Content-Type" :"application/json",
-        "X-HTTP-Method-Override" : "PATCH"},
+        "X-HTTP-Method-Override" : "PUT"},
       data: JSON.stringify({ completed : tobeStatus })
     }).done(function( res ) {
       // .className -> className
@@ -267,11 +266,11 @@ window.todo.main = (function ($, common){
   // $li는 투두 리스트 li, jquery selector
   function editTodo(id, strTodo, $li) {
     $.ajax({
-      method: "PATCH",
+      method: "PUT",
       url : TODOAPIURL+"/"+id,
       headers: {
         "Content-Type" :"application/json",
-        "X-HTTP-Method-Override" : "PATCH"},
+        "X-HTTP-Method-Override" : "PUT"},
       data : JSON.stringify({"todo" : strTodo})
     })
       .done(function(res) {

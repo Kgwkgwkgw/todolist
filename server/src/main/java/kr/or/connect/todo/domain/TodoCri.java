@@ -7,7 +7,12 @@ public class TodoCri {
 	public static Integer UNCOMPLETED = 0;
 	
 	private Integer completed;
-
+	public TodoCri() {
+		
+	}
+	public TodoCri(Integer completed) {
+		this.completed = completed;
+	}
 	public Integer getCompleted() {
 		return completed;
 	}

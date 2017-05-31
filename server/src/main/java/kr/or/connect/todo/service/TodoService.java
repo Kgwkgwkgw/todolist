@@ -1,7 +1,6 @@
 package kr.or.connect.todo.service;
 
 import java.util.Collection;
-import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +42,8 @@ public class TodoService {
 	}
 	
 	public Todo create(Todo todo) {
-		todo.setDate(new Date());
 		Integer id = todoDao.insert(todo);
-		todo.setId(id);
-		return todo;
+		return findById(id);
 	}
 	
 	public Integer removeByCri(TodoCri todoCri) {
