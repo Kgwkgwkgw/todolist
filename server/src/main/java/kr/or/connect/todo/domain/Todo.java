@@ -8,6 +8,12 @@ import org.hibernate.validator.constraints.NotBlank;
 
 public class Todo {
 	private int id;
+	@NotNull
+	@NotBlank(message="내용을 입력 해주세요.")
+	private String todo;
+	private Integer completed;
+	private Date date;
+	
 	public Todo() {
 		
 	}
@@ -18,11 +24,6 @@ public class Todo {
 		this.todo = todo;
 		this.completed = completed;
 	}
-	@NotNull
-	@NotBlank(message="내용을 입력 해주세요.")
-	private String todo;
-	private Integer completed;
-	private Date date;
 	
 	public int getId() {
 		return id;
