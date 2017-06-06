@@ -35,16 +35,16 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	  HttpStatus status, 
 	  WebRequest request) {
 		Map<String, Object> errors = new HashMap<>();
-	    for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-	        errors.put(error.getField(), error.getDefaultMessage());
-	    }
-	    for (ObjectError error : ex.getBindingResult().getGlobalErrors()) {
-	        errors.put(error.getObjectName(), error.getDefaultMessage());
-	    }
-	     
-	    ApiError apiError = 
-	      new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
-	    return handleExceptionInternal(ex, apiError, headers, apiError.getStatus(), request);
+		for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+		    errors.put(error.getField(), error.getDefaultMessage());
+		}
+		for (ObjectError error : ex.getBindingResult().getGlobalErrors()) {
+		    errors.put(error.getObjectName(), error.getDefaultMessage());
+		}
+		 
+		ApiError apiError = 
+		  new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
+		return handleExceptionInternal(ex, apiError, headers, apiError.getStatus(), request);
 	}
 	
 	// MissingServletRequestParameterException - Request param missing 
@@ -53,11 +53,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	  MissingServletRequestParameterException ex, HttpHeaders headers, 
 	  HttpStatus status, WebRequest request) {
 		Map<String, Object> error = new HashMap<>();
-	    error.put(ex.getParameterName(), "parameter mssing");
-	     
-	    ApiError apiError = 
-	      new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
-	    return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+		error.put(ex.getParameterName(), "parameter mssing");
+		 
+		ApiError apiError = 
+		  new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+		return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 	
 	// ConstraintViolationException  - constraint violations 
@@ -65,20 +65,20 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	public ResponseEntity<Object> handleConstraintViolation (
 	  ConstraintViolationException ex, WebRequest request) {
 		Map<String, Object> errors = new HashMap<>();
-	    for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-	        errors.put(violation.getRootBeanClass().getName(), 
-	        		violation.getPropertyPath() + ": " + violation.getMessage());
-	    }
-	 
-	    ApiError apiError = 
-	      new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
-	    return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+		for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+		    errors.put(violation.getRootBeanClass().getName(), 
+		    		violation.getPropertyPath() + ": " + violation.getMessage());
+		    }
+		 
+		ApiError apiError = 
+		  new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
+		return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 	
 	// MethodArgumentTypeMismatchException - argument missmatching
 	@ExceptionHandler({ MethodArgumentTypeMismatchException.class })
 	public ResponseEntity<Object> handleMethodArgumentTypeMismatch (
-	MethodArgumentTypeMismatchException ex, WebRequest request) {
+	  MethodArgumentTypeMismatchException ex, WebRequest request) {
 		Map<String, Object> error = new HashMap<>();
 		error.put(ex.getName(), "should be of type " + ex.getRequiredType().getName());
 		ApiError apiError = 
@@ -89,7 +89,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	// invalid JSON format handling 
 	@ExceptionHandler({JsonMappingException.class})
 	public ResponseEntity<Object> handleJsonMappingException (
-			JsonMappingException ex, WebRequest request) {
+	  JsonMappingException ex, WebRequest request) {
 		Map<String, Object> error = new HashMap<>();
 		error.put("msg",ex.getMessage());
 		ApiError apiError = 
@@ -100,7 +100,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	// etc 
 	@ExceptionHandler({Exception.class})
 	public ResponseEntity<Object> handleJsonMappingException (
-			Exception ex, WebRequest request) {
+	  Exception ex, WebRequest request) {
 		Map<String, Object> error = new HashMap<>();
 		error.put("url", request.getDescription(false));
 		error.put("msg", ex.getLocalizedMessage());

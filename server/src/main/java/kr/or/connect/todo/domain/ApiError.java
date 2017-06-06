@@ -6,17 +6,17 @@ import org.springframework.http.HttpStatus;
 
 public class ApiError {
 	private HttpStatus status;
-    private String message;
-    private Map<String, Object> errors;
+	private String message;
+	private Map<String, Object> errors;
  
-    public ApiError(HttpStatus status, String message, Map<String, Object> errors) {
-        super();
-        this.status = status;
-        this.message = message;
-        this.errors = errors;
-    }
+	public ApiError(HttpStatus status, String message, Map<String, Object> errors) {
+		super();
+		this.status = status;
+		this.message = message;
+		this.errors = errors;
+	}
 
-    public HttpStatus getStatus() {
+	public HttpStatus getStatus() {
 		return status;
 	}
 	public void setStatus(HttpStatus status) {
