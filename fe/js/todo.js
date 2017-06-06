@@ -387,8 +387,8 @@
     function init () {
       //todo 이벤트 리스닝
       common.addEventHandling(arrEventInfo);
-      //투두 리스트 가져오기
-      getList();
+      //투두 리스트(모든 리스트) 가져오는 이벤트 트리거
+      $(filterAllbtn).trigger("click");
     }
 
     return {
